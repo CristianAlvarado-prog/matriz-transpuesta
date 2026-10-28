@@ -1,22 +1,13 @@
 name: Compilar macOS
 
-# Se ejecuta solo al subir cambios y también a mano desde la pestaña Actions.
 on:
+  workflow_dispatch:
   push:
     branches: [main]
-  workflow_dispatch:
 
 jobs:
   macos:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runner: macos-15-intel   # Macs con procesador Intel
-            nombre: Intel
-          - runner: macos-latest     # Macs con chip Apple (M1, M2, M3...)
-            nombre: AppleSilicon
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
 
@@ -24,17 +15,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Instalar PyInstaller
-        run: pip install pyinstaller
+      - run: pip install pyinstaller
 
-      - name: Compilar (genera el .app)
-        run: pyinstaller --windowed --name MatrizTranspuesta matriz_transpuesta.py
+      - run: pyinstaller --windowed --name MatrizTranspuesta matriz_transpuesta.py
 
-      - name: Comprimir el .app en un .zip
-        run: ditto -c -k --sequesterRsrc --keepParent dist/MatrizTranspuesta.app dist/MatrizTranspuesta-macOS-${{ matrix.nombre }}.zip
+      - run: ditto -c -k --sequesterRsrc --keepParent dist/MatrizTranspuesta.app dist/MatrizTranspuesta-macOS-AppleSilicon.zip
 
-      - name: Guardar el resultado
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: MatrizTranspuesta-macOS-${{ matrix.nombre }}
-          path: dist/MatrizTranspuesta-macOS-${{ matrix.nombre }}.zip
+          name: MatrizTranspuesta-macOS-AppleSilicon
+          path: dist/MatrizTranspuesta-macOS-AppleSilicon.zip
