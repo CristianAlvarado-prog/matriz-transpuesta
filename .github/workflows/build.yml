@@ -1,7 +1,5 @@
 name: Compilar aplicación
 
-# Se ejecuta solo cada vez que se sube algo al repositorio,
-# y también se puede ejecutar a mano desde la pestaña Actions.
 on:
   push:
     branches: [main]
@@ -30,7 +28,7 @@ jobs:
           path: dist/MatrizTranspuesta.exe
 
   macos:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
 
