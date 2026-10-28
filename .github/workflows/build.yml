@@ -1,5 +1,6 @@
 name: Compilar macOS
 
+# Se ejecuta solo al subir cambios y también a mano desde la pestaña Actions.
 on:
   push:
     branches: [main]
@@ -7,7 +8,15 @@ on:
 
 jobs:
   macos:
-    runs-on: macos-13
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15-intel   # Macs con procesador Intel
+            nombre: Intel
+          - runner: macos-latest     # Macs con chip Apple (M1, M2, M3...)
+            nombre: AppleSilicon
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
 
@@ -22,10 +31,10 @@ jobs:
         run: pyinstaller --windowed --name MatrizTranspuesta matriz_transpuesta.py
 
       - name: Comprimir el .app en un .zip
-        run: ditto -c -k --sequesterRsrc --keepParent dist/MatrizTranspuesta.app dist/MatrizTranspuesta-macOS.zip
+        run: ditto -c -k --sequesterRsrc --keepParent dist/MatrizTranspuesta.app dist/MatrizTranspuesta-macOS-${{ matrix.nombre }}.zip
 
       - name: Guardar el resultado
         uses: actions/upload-artifact@v4
         with:
-          name: MatrizTranspuesta-macOS
-          path: dist/MatrizTranspuesta-macOS.zip
+          name: MatrizTranspuesta-macOS-${{ matrix.nombre }}
+          path: dist/MatrizTranspuesta-macOS-${{ matrix.nombre }}.zip
