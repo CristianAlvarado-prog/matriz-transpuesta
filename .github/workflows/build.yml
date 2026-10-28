@@ -1,0 +1,54 @@
+name: Compilar aplicación
+
+# Se ejecuta solo cada vez que se sube algo al repositorio,
+# y también se puede ejecutar a mano desde la pestaña Actions.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar PyInstaller
+        run: pip install pyinstaller
+
+      - name: Compilar (genera el .exe)
+        run: pyinstaller --onefile --windowed --name MatrizTranspuesta matriz_transpuesta.py
+
+      - name: Guardar el resultado
+        uses: actions/upload-artifact@v4
+        with:
+          name: MatrizTranspuesta-Windows
+          path: dist/MatrizTranspuesta.exe
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar PyInstaller
+        run: pip install pyinstaller
+
+      - name: Compilar (genera el .app)
+        run: pyinstaller --windowed --name MatrizTranspuesta matriz_transpuesta.py
+
+      - name: Comprimir el .app en un .zip
+        run: ditto -c -k --sequesterRsrc --keepParent dist/MatrizTranspuesta.app dist/MatrizTranspuesta-macOS.zip
+
+      - name: Guardar el resultado
+        uses: actions/upload-artifact@v4
+        with:
+          name: MatrizTranspuesta-macOS
+          path: dist/MatrizTranspuesta-macOS.zip
